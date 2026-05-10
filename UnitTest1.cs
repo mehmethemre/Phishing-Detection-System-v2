@@ -1,4 +1,6 @@
-﻿namespace phishing;
+﻿using Xunit;
+
+namespace phishing;
 
 public class UnitTest1
 {

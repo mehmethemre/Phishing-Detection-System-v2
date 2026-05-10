@@ -8,3 +8,4 @@ public class Document
     public int UserId { get; set; }
     public User User { get; set; }
     public string AnalysisResult { get; set; }
+}

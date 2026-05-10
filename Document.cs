@@ -7,4 +7,6 @@ public class Document
     // Yabancı Anahtar (Foreign Key)
     public int UserId { get; set; }
     public User User { get; set; }
+    public string AnalysisResult { get; set; }
+
 }

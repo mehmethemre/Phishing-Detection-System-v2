@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Oltalama (Phishing) Analizi";
+}
+
+<div style="text-align: center; margin-top: 50px;">
+    <h2>Şüpheli Metin Analiz Sistemi</h2>
+    <p>Oltalama (phishing) riski taşıdığını düşündüğünüz e-posta veya mesaj metnini aşağıya yapıştırın.</p>
+
+    <!-- Metnin DocumentController'daki AnalyzeText metoduna gönderildiği form -->
+    <form method="post" action="/Document/AnalyzeText">
+        <textarea name="text" rows="8" cols="80" placeholder="Şüpheli metni buraya yapıştırın..." required></textarea>
+        <br /><br />
+        <button type="submit" style="padding: 10px 20px; font-size: 16px; background-color: #007bff; color: white; border: none; cursor: pointer;">
+            Yapay Zeka ile Analiz Et
+        </button>
+    </form>
+
+    <!-- Controller'dan gelen sonuç (ViewBag.Result) burada gösterilecek -->
+    @if (ViewBag.Result != null)
+    {
+        <div style="margin-top: 30px; padding: 20px; border: 2px solid #28a745; background-color: #d4edda; display: inline-block;">
+            <h3>Analiz Sonucu:</h3>
+            <p><strong>@ViewBag.Result</strong></p>
+        </div>
+    }
+</div>

@@ -5,7 +5,14 @@ namespace PhishingDetection.Controllers
 {
     public class DocumentController : Controller
     {
-        // Kullanıcı arayüzden metin gönderdiğinde çalışacak yönlendirici metot
+        // 1. Tarayıcıdan adrese girildiğinde sayfanın İLK AÇILIŞINI sağlayan metot
+        [HttpGet]
+        public IActionResult Index()
+        {
+            return View();
+        }
+
+        // 2. Senin yazdığın: Kullanıcı arayüzden metin gönderdiğinde çalışacak metot
         [HttpPost]
         public IActionResult AnalyzeText(string text)
         {

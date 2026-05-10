@@ -22,6 +22,9 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
+
+          "net9.0"
+
           "net10.0"
         ],
         "sources": {
@@ -29,8 +32,12 @@
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
+          "net9.0": {
+            "targetAlias": "net9.0",
+
           "net10.0": {
             "targetAlias": "net10.0",
+
             "projectReferences": {}
           }
         },
@@ -42,11 +49,31 @@
         "restoreAuditProperties": {
           "enableAudit": "true",
           "auditLevel": "low",
+
+          "auditMode": "direct"
+
           "auditMode": "all"
+
         },
         "SdkAnalysisLevel": "10.0.200"
       },
       "frameworks": {
+
+        "net9.0": {
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[18.5.1, )"
+
         "net10.0": {
           "targetAlias": "net10.0",
           "dependencies": {
@@ -61,22 +88,31 @@
             "Microsoft.NET.Test.Sdk": {
               "target": "Package",
               "version": "[17.14.1, )"
+ 
             },
             "Moq": {
               "target": "Package",
               "version": "[4.20.72, )"
             },
+
             "coverlet.collector": {
               "target": "Package",
               "version": "[6.0.4, )"
             },
+
             "xunit": {
               "target": "Package",
               "version": "[2.9.3, )"
             },
             "xunit.runner.visualstudio": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.1.5, )"
+
               "target": "Package",
               "version": "[3.1.4, )"
+
             }
           },
           "imports": [
@@ -90,11 +126,35 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.AspNetCore.App.Ref",
+              "version": "[9.0.15, 9.0.15]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Host.win-x64",
+              "version": "[9.0.15, 9.0.15]"
+            },
+            {
+              "name": "Microsoft.NETCore.App.Ref",
+              "version": "[9.0.15, 9.0.15]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Ref",
+              "version": "[9.0.15, 9.0.15]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json"
+
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.203/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",

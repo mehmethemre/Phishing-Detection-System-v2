@@ -1,37 +1,34 @@
-using System;
 using System.Threading.Tasks;
+using PhishingDetection.Strategies; // Stratejilerin olduğu klasöre göre düzenle
 
-public class DocumentService
+namespace PhishingDetection.Services
 {
-    private readonly IRepository<Document> _documentRepository;
-    private IDocumentAnalysisStrategy _analysisStrategy;
-
-    // Dependency Injection ile IRepository içeri alınıyor
-    public DocumentService(IRepository<Document> documentRepository)
+    public class DocumentService
     {
-        _documentRepository = documentRepository;
-    }
+        private readonly IRepository<Document> _repository;
+        private IDocumentAnalysisStrategy _analysisStrategy;
 
-    // Çalışma zamanında (Runtime) stratejiyi değiştirmemizi sağlayan metod
-    public void SetAnalysisStrategy(IDocumentAnalysisStrategy strategy)
-    {
-        _analysisStrategy = strategy ?? throw new ArgumentNullException(nameof(strategy));
-    }
+        public DocumentService(IRepository<Document> repository)
+        {
+            _repository = repository;
+        }
 
-    public async Task AnalyzeAndUpdateDocumentAsync(int documentId)
-    {
-        if (_analysisStrategy == null)
-            throw new InvalidOperationException("Lütfen analiz işleminden önce bir strateji belirleyin.");
+        // Strategy Pattern kullanımı [2]
+        public void SetAnalysisStrategy(IDocumentAnalysisStrategy strategy)
+        {
+            _analysisStrategy = strategy;
+        }
 
-        // 1. Veri Erişim: Dokümanı veritabanından çek
-        var document = await _documentRepository.GetByIdAsync(documentId);
-        if (document == null)
-            throw new Exception("Doküman bulunamadı.");
-
-        // 2. İş Mantığı: Seçilen stratejiye göre metni analiz et
-        document.AnalysisResult = _analysisStrategy.Analyze(document.Content);
-
-        // 3. Veri Erişim: Güncellenmiş dokümanı veritabanına kaydet
-        await _documentRepository.UpdateAsync(document);
+        // Asenkron metod yapısı [1]
+        public async Task AnalyzeAndUpdateDocumentAsync(int id)
+        {
+            var doc = await _repository.GetByIdAsync(id);
+            if (doc != null && _analysisStrategy != null)
+            {
+                // Stratejiyi asenkron olarak çağırıp sonucunu bekliyoruz
+                doc.AnalysisResult = await _analysisStrategy.AnalyzeAsync(doc.Content);
+                await _repository.UpdateAsync(doc);
+            }
+        }
     }
 }

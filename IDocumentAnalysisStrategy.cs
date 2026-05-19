@@ -1,5 +1,10 @@
-// Analiz işlemleri için ortak kontrat
-public interface IDocumentAnalysisStrategy
+using System.Threading.Tasks;
+
+namespace PhishingDetection.Strategies
 {
-    string Analyze(string text);
+    public interface IDocumentAnalysisStrategy
+    {
+        // Geri dönüş tipi Task<string> ve metod ismi AnalyzeAsync olmalı
+        Task<string> AnalyzeAsync(string text);
+    }
 }

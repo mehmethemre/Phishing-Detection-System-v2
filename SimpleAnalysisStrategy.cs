@@ -1,12 +1,17 @@
 using System;
+using System.Threading.Tasks;
 
-// Strateji 1: Basit Kelime Analizi
-public class SimpleAnalysisStrategy : IDocumentAnalysisStrategy
+namespace PhishingDetection.Strategies
 {
-    public string Analyze(string text)
+    public class SimpleAnalysisStrategy : IDocumentAnalysisStrategy
     {
-        if (string.IsNullOrWhiteSpace(text)) return "Metin boş.";
-        int wordCount = text.Split(new[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Length;
-        return $"Basit Analiz: Metin {wordCount} kelimeden oluşuyor.";
+        public async Task<string> AnalyzeAsync(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) 
+                return await Task.FromResult("Metin boş.");
+
+            int wordCount = text.Split(new[] { ' ', '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries).Length;
+            return await Task.FromResult($"Basit Analiz: Metin {wordCount} kelimeden oluşuyor.");
+        }
     }
 }

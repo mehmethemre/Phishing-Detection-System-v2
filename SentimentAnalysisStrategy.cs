@@ -1,10 +1,17 @@
-// Strateji 2: AI Duygu Analizi (Simülasyon)
-public class SentimentAnalysisStrategy : IDocumentAnalysisStrategy
+using System.Threading.Tasks;
+
+namespace PhishingDetection.Strategies
 {
-    public string Analyze(string text)
+    public class SentimentAnalysisStrategy : IDocumentAnalysisStrategy
     {
-        // Burada ileride gerçek bir AI API'sine istek atılabilir.
-        bool isPhishingSuspicious = text.ToLower().Contains("şifre") || text.ToLower().Contains("acil");
-        return isPhishingSuspicious ? "Duygu Analizi: Şüpheli (Phishing riski yüksek)" : "Duygu Analizi: Normal";
+        public async Task<string> AnalyzeAsync(string text)
+        {
+            bool isPhishingSuspicious = text.ToLower().Contains("şifre") || text.ToLower().Contains("acil");
+            string result = isPhishingSuspicious 
+                ? "Duygu Analizi: Şüpheli (Phishing riski yüksek)" 
+                : "Duygu Analizi: Normal";
+
+            return await Task.FromResult(result);
+        }
     }
 }

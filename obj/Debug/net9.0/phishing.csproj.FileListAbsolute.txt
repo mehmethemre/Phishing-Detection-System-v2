@@ -152,3 +152,5 @@ C:\Users\Emre\Desktop\phishing\obj\Debug\net9.0\refint\phishing.dll
 C:\Users\Emre\Desktop\phishing\obj\Debug\net9.0\phishing.pdb
 C:\Users\Emre\Desktop\phishing\obj\Debug\net9.0\phishing.genruntimeconfig.cache
 C:\Users\Emre\Desktop\phishing\obj\Debug\net9.0\ref\phishing.dll
+C:\Users\Emre\Desktop\phishing\bin\Debug\net9.0\Npgsql.dll
+C:\Users\Emre\Desktop\phishing\bin\Debug\net9.0\Npgsql.EntityFrameworkCore.PostgreSQL.dll

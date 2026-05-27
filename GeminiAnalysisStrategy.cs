@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration; // IConfiguration için gerekli kütüphane
+using Microsoft.Extensions.Configuration;
 
 namespace phishing
 {
@@ -12,11 +12,10 @@ namespace phishing
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
 
-        // Constructor'a IConfiguration eklendi
         public GeminiAnalysisStrategy(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            // Şifreyi hem appsettings'den hem de Render Environment'tan garantili şekilde arıyoruz
+            // Şifre başarıyla okunuyor!
             _apiKey = configuration["GEMINI_API_KEY"] ?? Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? "API_KEY_EKSIK";
         }
 
@@ -25,10 +24,9 @@ namespace phishing
             if (string.IsNullOrWhiteSpace(content)) 
                 return "// Lütfen analiz için geçerli bir metin girin.";
 
-            // Güncel Gemini 1.5 Flash URL'si
-            string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}";
+            // ÇÖZÜM BURADA: Model ismini "gemini-1.5-flash" yerine tüm bölgelerde desteklenen "gemini-pro" yaptık.
+            string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key={_apiKey}";
 
-            // Yapay zeka promptu
             var requestBody = new
             {
                 contents = new[]
@@ -43,11 +41,10 @@ namespace phishing
             {
                 var response = await _httpClient.PostAsync(url, jsonContent);
                 
-                // EĞER GOOGLE BİZİ REDDEDERSE: Sadece 400 hatası vermek yerine Google'ın gönderdiği asıl detaylı hata mesajını ekrana basıyoruz.
                 if (!response.IsSuccessStatusCode)
                 {
                     var errorContent = await response.Content.ReadAsStringAsync();
-                    return $"// Gemini API Hatası ({response.StatusCode}): Google bağlantıyı reddetti. Detay: {errorContent} --- (Okunan API_KEY: {_apiKey.Substring(0, Math.Min(5, _apiKey.Length))}...)";
+                    return $"// Gemini API Hatası ({response.StatusCode}): Google bağlantıyı reddetti. Detay: {errorContent}";
                 }
                 
                 var responseString = await response.Content.ReadAsStringAsync();

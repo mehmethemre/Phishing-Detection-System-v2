@@ -86,13 +86,22 @@ namespace phishing
                 var responseString = await response.Content.ReadAsStringAsync();
                 using JsonDocument doc = JsonDocument.Parse(responseString);
                 
-                // İŞTE GERÇEK VE KESİN ÇÖZÜM BURADA:  İndeksleri kodun içine eklendi!
-                var textResult = doc.RootElement
-                    .GetProperty("candidates")      // Array'in 1. elemanını seçtik!
-                    .GetProperty("content")
-                    .GetProperty("parts")           // Array'in 1. elemanını seçtik!
-                    .GetProperty("text")
-                    .GetString();
+                // İŞTE KESİN ÇÖZÜM:  indeksleri başarıyla eklendi!
+                JsonElement root = doc.RootElement;
+                
+                // 1. candidates dizisini al ve  ile İLK elemanına gir:
+                JsonElement candidatesArray = root.GetProperty("candidates");
+                JsonElement firstCandidate = candidatesArray; 
+                
+                // 2. content objesini al:
+                JsonElement contentObj = firstCandidate.GetProperty("content");
+                
+                // 3. parts dizisini al ve  ile İLK elemanına gir:
+                JsonElement partsArray = contentObj.GetProperty("parts");
+                JsonElement firstPart = partsArray; 
+                
+                // 4. Son olarak içindeki "text" değerini string olarak çek:
+                string textResult = firstPart.GetProperty("text").GetString();
 
                 return textResult ?? "// Analiz sonucu alınamadı.";
             }

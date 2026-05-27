@@ -15,7 +15,6 @@ namespace phishing
         public GeminiAnalysisStrategy(HttpClient httpClient, IConfiguration configuration)
         {
             _httpClient = httpClient;
-            // Şifremiz başarıyla okunuyor
             _apiKey = configuration["GEMINI_API_KEY"] ?? Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? "API_KEY_EKSIK";
         }
 
@@ -26,7 +25,7 @@ namespace phishing
 
             try
             {
-                // 1. ADIM: Google'a "Şu an 2026 yılında hangi modellerin aktif?" diye soruyoruz
+                // 1. ADIM: Dinamik olarak güncel ve aktif modeli buluyoruz
                 string listUrl = $"https://generativelanguage.googleapis.com/v1beta/models?key={_apiKey}";
                 var listResponse = await _httpClient.GetAsync(listUrl);
                 listResponse.EnsureSuccessStatusCode();
@@ -36,7 +35,6 @@ namespace phishing
                 
                 string workingModel = "";
                 
-                // Gelen listeden metin üretebilen (generateContent) ilk güncel "gemini" modelini buluyoruz
                 foreach (var model in listDoc.RootElement.GetProperty("models").EnumerateArray())
                 {
                     var name = model.GetProperty("name").GetString();
@@ -52,7 +50,6 @@ namespace phishing
                         }
                     }
                     
-                    // Güncel ve çalışan modeli (Örn: models/gemini-2.5-flash) seçiyoruz
                     if (supportsGeneration && name != null && name.StartsWith("models/gemini"))
                     {
                         workingModel = name; 
@@ -65,7 +62,7 @@ namespace phishing
                     return "// Gemini API Hatası: Aktif ve uyumlu hiçbir yapay zeka modeli bulunamadı.";
                 }
 
-                // 2. ADIM: Bulduğumuz ve %100 çalıştığından emin olduğumuz model ile asıl analizi gerçekleştiriyoruz
+                // 2. ADIM: Bulduğumuz güncel model ile asıl analizi gerçekleştiriyoruz
                 string generateUrl = $"https://generativelanguage.googleapis.com/v1beta/{workingModel}:generateContent?key={_apiKey}";
 
                 var requestBody = new
@@ -86,8 +83,10 @@ namespace phishing
                     return $"// Gemini API Hatası ({response.StatusCode}): {workingModel} bağlantıyı reddetti. Detay: {errorContent}";
                 }
                 
+                // ÇÖZÜM BURADA: Gelen JSON'u okurken Array (Liste) olan 'candidates' ve 'parts' öğelerinin  indeksli ilk elemanlarını seçiyoruz!
                 var responseString = await response.Content.ReadAsStringAsync();
                 using JsonDocument doc = JsonDocument.Parse(responseString);
+                
                 var candidates = doc.RootElement.GetProperty("candidates");
                 var textResult = candidates.GetProperty("content").GetProperty("parts").GetProperty("text").GetString();
 

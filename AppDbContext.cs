@@ -1,17 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 
-public class AppDbContext : DbContext
+namespace phishing
 {
-
-      public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
-{
-}
-    public DbSet<User> Users { get; set; }
-    public DbSet<Document> Documents { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    public class AppDbContext : DbContext
     {
-        // Geliştirme aşaması için lokal bir SQL Server bağlantısı kullanıyoruz. 
-        optionsBuilder.UseSqlServer(@"Server=(localdb)\mssqllocaldb;Database=MetinAnaliziDB;Trusted_Connection=True;");
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
+        
+        public DbSet<Document> Documents { get; set; }
     }
 }

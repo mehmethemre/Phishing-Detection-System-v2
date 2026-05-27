@@ -1,23 +1,34 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 
-namespace PhishingDetection.Controllers
+namespace phishing.Controllers
 {
     public class DocumentController : Controller
     {
-        // 1. Tarayıcıdan adrese girildiğinde sayfanın İLK AÇILIŞINI sağlayan metot
+        private readonly IDocumentService _documentService;
+
+        public DocumentController(IDocumentService documentService)
+        {
+            _documentService = documentService;
+        }
+
         [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
 
-        // 2. Senin yazdığın: Kullanıcı arayüzden metin gönderdiğinde çalışacak metot
         [HttpPost]
-        public IActionResult AnalyzeText(string text)
+        public async Task<IActionResult> AnalyzeText(string text)
         {
-            // İleride bu metni yapay zeka servisimize (Gemini) gönderip analiz sonucunu ekrana basacağız
-            ViewBag.Result = "Metin başarıyla alındı ve analiz ediliyor...";
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                ViewBag.Result = "// Lütfen analiz için geçerli bir metin girin.";
+                return View("Index");
+            }
+
+            var result = await _documentService.AnalyzeTextAsync(text);
+            ViewBag.Result = result;
             return View("Index");
         }
     }

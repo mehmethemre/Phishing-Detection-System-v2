@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace PhishingDetection.Strategies
+namespace phishing
 {
     public class SentimentAnalysisStrategy : IDocumentAnalysisStrategy
     {

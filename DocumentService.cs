@@ -1,34 +1,19 @@
 using System.Threading.Tasks;
-using PhishingDetection.Strategies; // Stratejilerin olduğu klasöre göre düzenle
 
-namespace PhishingDetection.Services
+namespace phishing
 {
-    public class DocumentService
+    public class DocumentService : IDocumentService
     {
-        private readonly IRepository<Document> _repository;
-        private IDocumentAnalysisStrategy _analysisStrategy;
+        private readonly IDocumentAnalysisStrategy _analysisStrategy;
 
-        public DocumentService(IRepository<Document> repository)
+        public DocumentService(IDocumentAnalysisStrategy analysisStrategy)
         {
-            _repository = repository;
+            _analysisStrategy = analysisStrategy;
         }
 
-        // Strategy Pattern kullanımı [2]
-        public void SetAnalysisStrategy(IDocumentAnalysisStrategy strategy)
+        public async Task<string> AnalyzeTextAsync(string text)
         {
-            _analysisStrategy = strategy;
-        }
-
-        // Asenkron metod yapısı [1]
-        public async Task AnalyzeAndUpdateDocumentAsync(int id)
-        {
-            var doc = await _repository.GetByIdAsync(id);
-            if (doc != null && _analysisStrategy != null)
-            {
-                // Stratejiyi asenkron olarak çağırıp sonucunu bekliyoruz
-                doc.AnalysisResult = await _analysisStrategy.AnalyzeAsync(doc.Content);
-                await _repository.UpdateAsync(doc);
-            }
+            return await _analysisStrategy.AnalyzeAsync(text);
         }
     }
 }

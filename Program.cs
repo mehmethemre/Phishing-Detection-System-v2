@@ -1,23 +1,33 @@
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore.PostgreSQL;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore; // Veritabanı işlemleri için eklendi
+using phishing;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// MVC (Controller ve View) desteğini uygulamaya ekliyoruz
 builder.Services.AddControllersWithViews();
 
-// Veritabanı bağlantısını PostgreSQL (Supabase) kullanacak şekilde ekliyoruz
+// Gemini API için HttpClient ve Servis kayıtları
+builder.Services.AddHttpClient<IDocumentAnalysisStrategy, GeminiAnalysisStrategy>();
+builder.Services.AddScoped<IDocumentAnalysisStrategy, GeminiAnalysisStrategy>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
+
+// Veritabanı bağlantısı
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection") 
+    ?? Environment.GetEnvironmentVariable("DATABASE_URL")));
 
 var app = builder.Build();
 
-app.UseRouting();
+if (!app.Environment.IsDevelopment())
+{
+    app.UseExceptionHandler("/Home/Error");
+    app.UseHsts();
+}
 
-// Varsayılan açılış sayfasını bizim tasarladığımız DocumentController'a yönlendiriyoruz
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+app.UseAuthorization();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Document}/{action=Index}/{id?}");

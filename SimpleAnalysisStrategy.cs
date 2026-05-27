@@ -1,7 +1,7 @@
 using System;
 using System.Threading.Tasks;
 
-namespace PhishingDetection.Strategies
+namespace phishing
 {
     public class SimpleAnalysisStrategy : IDocumentAnalysisStrategy
     {

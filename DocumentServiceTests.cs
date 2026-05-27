@@ -1,40 +1,25 @@
 using System.Threading.Tasks;
-using Moq;
 using Xunit;
-using PhishingDetection.Services;   // DocumentService'i bulabilmesi için
-using PhishingDetection.Strategies; // SentimentAnalysisStrategy'yi bulabilmesi için
 
-// Eğer Document ve IRepository sınıfların farklı bir klasördeyse orayı da eklemelisin
-// örneğin: using PhishingDetection.Models; 
-
-public class DocumentServiceTests
+namespace phishing
 {
-    [Fact]
-    public async Task AnalyzeAndUpdateDocumentAsync_ShouldUpdateDocument_WhenStrategyIsSet()
+    public class DocumentServiceTests
     {
-        // Arrange (Hazırlık)
-        int documentId = 1;
-        var fakeDocument = new Document 
-        { 
-            Id = documentId, 
-            Content = "Lütfen acil olarak şifrenizi güncelleyin.",
-            AnalysisResult = "" 
-        };
+        [Fact]
+        public async Task AnalyzeTextAsync_ShouldReturnSuspicious_WhenTextContainsAcil()
+        {
+            // Arrange (Hazırlık)
+            // Sentiment stratejimizi güncel servisimize enjekte ediyoruz
+            var strategy = new SentimentAnalysisStrategy();
+            var documentService = new DocumentService(strategy);
+            
+            string testMetni = "Lütfen acil olarak şifrenizi güncelleyin.";
 
-        var mockRepository = new Mock<IRepository<Document>>();
-        mockRepository.Setup(repo => repo.GetByIdAsync(documentId))
-                      .ReturnsAsync(fakeDocument);
+            // Act (Eylem)
+            string result = await documentService.AnalyzeTextAsync(testMetni);
 
-        var documentService = new DocumentService(mockRepository.Object);
-        
-        // Strateji adresini yukarıda using ile eklediğimiz için artık tanınacaktır
-        documentService.SetAnalysisStrategy(new SentimentAnalysisStrategy());
-
-        // Act (Eylem)
-        await documentService.AnalyzeAndUpdateDocumentAsync(documentId);
-
-        // Assert (Doğrulama)
-        Assert.Equal("Duygu Analizi: Şüpheli (Phishing riski yüksek)", fakeDocument.AnalysisResult);
-        mockRepository.Verify(repo => repo.UpdateAsync(fakeDocument), Times.Once);
+            // Assert (Doğrulama)
+            Assert.Equal("Duygu Analizi: Şüpheli (Phishing riski yüksek)", result);
+        }
     }
 }

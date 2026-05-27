@@ -4,66 +4,53 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace PhishingDetection.Strategies
+namespace phishing
 {
     public class GeminiAnalysisStrategy : IDocumentAnalysisStrategy
     {
-        private readonly string _apiKey;
         private readonly HttpClient _httpClient;
+        private readonly string _apiKey;
 
-        // API anahtarını Program.cs üzerinden, GitHub Secrets'tan okuyarak alıyoruz [1]
-        public GeminiAnalysisStrategy(string apiKey, HttpClient httpClient)
+        public GeminiAnalysisStrategy(HttpClient httpClient)
         {
-            _apiKey = apiKey;
             _httpClient = httpClient;
+            // Şifreyi güvenlik gereği ortam değişkenlerinden çekiyoruz
+            _apiKey = Environment.GetEnvironmentVariable("GEMINI_API_KEY") ?? "API_KEY_EKSIK";
         }
 
-        // Metodu asenkron (async/await) yapıya çeviriyoruz [5]
-        public async Task<string> AnalyzeAsync(string text)
+        public async Task<string> AnalyzeAsync(string content)
         {
-            if (string.IsNullOrEmpty(_apiKey))
-            {
-                return "Hata: API anahtarı bulunamadı. Lütfen GitHub Secrets ayarlarını kontrol edin.";
-            }
+            if (string.IsNullOrWhiteSpace(content)) 
+                return "// Lütfen analiz için geçerli bir metin girin.";
 
-            // Yapay zekaya gönderilecek istek gövdesi
+            string url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}";
+
             var requestBody = new
             {
-                contents = new[] {
-                    new { parts = new[] { new { text = $"Sen bir siber güvenlik uzmanısın. Lütfen şu metni analiz et ve oltalama (phishing) riski olup olmadığını kısa bir cümleyle açıkla: {text}" } } }
+                contents = new[]
+                {
+                    new { parts = new[] { new { text = $"Bu metni siber güvenlik ve oltalama (phishing) açısından analiz et. Kısa bir özet ver ve eğer zararlıysa 'phishing', 'sahte' veya 'tehdit' kelimelerinden birini kesinlikle kullan. Eğer zararsızsa 'güvenli' veya 'temiz' kelimesini kullan. Metin: {content}" } } }
                 }
             };
 
-            var jsonRequest = JsonSerializer.Serialize(requestBody);
-            var content = new StringContent(jsonRequest, Encoding.UTF8, "application/json");
-            var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={_apiKey}";
+            var jsonContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
 
             try
             {
-                // Asenkron POST isteği atıyoruz
-                var response = await _httpClient.PostAsync(url, content);
+                var response = await _httpClient.PostAsync(url, jsonContent);
+                response.EnsureSuccessStatusCode();
+                
+                var responseString = await response.Content.ReadAsStringAsync();
+                using JsonDocument doc = JsonDocument.Parse(responseString);
+                var root = doc.RootElement;
+                var candidates = root.GetProperty("candidates");
+                var textResult = candidates.GetProperty("content").GetProperty("parts").GetProperty("text").GetString();
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseString = await response.Content.ReadAsStringAsync();
-                    
-                    // Gemini'den gelen ham JSON içinden sadece metin kısmını ayıklıyoruz
-                    using var doc = JsonDocument.Parse(responseString);
-                    var resultText = doc.RootElement
-                        .GetProperty("candidates")
-                        .GetProperty("content")
-                        .GetProperty("parts")
-                        .GetProperty("text")
-                        .GetString();
-
-                    return resultText ?? "Analiz sonucu boş döndü.";
-                }
-
-                return $"API Hatası: {response.StatusCode} - Analiz gerçekleştirilemedi.";
+                return textResult ?? "// Analiz sonucu alınamadı.";
             }
             catch (Exception ex)
             {
-                return $"Bağlantı Hatası: {ex.Message}";
+                return $"// Gemini API Hatası: Sistem yapay zekaya bağlanamadı. Detay: {ex.Message}";
             }
         }
     }

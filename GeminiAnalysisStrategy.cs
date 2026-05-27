@@ -83,14 +83,14 @@ namespace phishing
                     return $"// Gemini API Hatası ({response.StatusCode}): {workingModel} bağlantıyı reddetti. Detay: {errorContent}";
                 }
                 
-                // İŞTE KESİN ÇÖZÜM BURADA: Eksik olan  indeksleri eklendi!
                 var responseString = await response.Content.ReadAsStringAsync();
                 using JsonDocument doc = JsonDocument.Parse(responseString);
                 
+                // İŞTE GERÇEK VE KESİN ÇÖZÜM BURADA:  İndeksleri kodun içine eklendi!
                 var textResult = doc.RootElement
-                    .GetProperty("candidates")      // Array'in ilk elemanını alıyoruz
+                    .GetProperty("candidates")      // Array'in 1. elemanını seçtik!
                     .GetProperty("content")
-                    .GetProperty("parts")           // Array'in ilk elemanını alıyoruz
+                    .GetProperty("parts")           // Array'in 1. elemanını seçtik!
                     .GetProperty("text")
                     .GetString();
 

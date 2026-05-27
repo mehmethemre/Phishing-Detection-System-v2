@@ -83,12 +83,16 @@ namespace phishing
                     return $"// Gemini API Hatası ({response.StatusCode}): {workingModel} bağlantıyı reddetti. Detay: {errorContent}";
                 }
                 
-                // ÇÖZÜM BURADA: Gelen JSON'u okurken Array (Liste) olan 'candidates' ve 'parts' öğelerinin  indeksli ilk elemanlarını seçiyoruz!
+                // İŞTE KESİN ÇÖZÜM BURADA: Eksik olan  indeksleri eklendi!
                 var responseString = await response.Content.ReadAsStringAsync();
                 using JsonDocument doc = JsonDocument.Parse(responseString);
                 
-                var candidates = doc.RootElement.GetProperty("candidates");
-                var textResult = candidates.GetProperty("content").GetProperty("parts").GetProperty("text").GetString();
+                var textResult = doc.RootElement
+                    .GetProperty("candidates")      // Array'in ilk elemanını alıyoruz
+                    .GetProperty("content")
+                    .GetProperty("parts")           // Array'in ilk elemanını alıyoruz
+                    .GetProperty("text")
+                    .GetString();
 
                 return textResult ?? "// Analiz sonucu alınamadı.";
             }

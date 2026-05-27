@@ -1,4 +1,5 @@
 using System;
+using System.Linq; // KESİN ÇÖZÜM İÇİN EKLENEN KÜTÜPHANE
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -25,7 +26,7 @@ namespace phishing
 
             try
             {
-                // 1. ADIM: Dinamik olarak güncel ve aktif modeli buluyoruz
+                // 1. ADIM: Dinamik olarak güncel modeli buluyoruz
                 string listUrl = $"https://generativelanguage.googleapis.com/v1beta/models?key={_apiKey}";
                 var listResponse = await _httpClient.GetAsync(listUrl);
                 listResponse.EnsureSuccessStatusCode();
@@ -62,7 +63,7 @@ namespace phishing
                     return "// Gemini API Hatası: Aktif ve uyumlu hiçbir yapay zeka modeli bulunamadı.";
                 }
 
-                // 2. ADIM: Bulduğumuz güncel model ile asıl analizi gerçekleştiriyoruz
+                // 2. ADIM: Asıl analizi gerçekleştiriyoruz
                 string generateUrl = $"https://generativelanguage.googleapis.com/v1beta/{workingModel}:generateContent?key={_apiKey}";
 
                 var requestBody = new
@@ -86,22 +87,13 @@ namespace phishing
                 var responseString = await response.Content.ReadAsStringAsync();
                 using JsonDocument doc = JsonDocument.Parse(responseString);
                 
-                // İŞTE KESİN ÇÖZÜM:  indeksleri başarıyla eklendi!
-                JsonElement root = doc.RootElement;
-                
-                // 1. candidates dizisini al ve  ile İLK elemanına gir:
-                JsonElement candidatesArray = root.GetProperty("candidates");
-                JsonElement firstCandidate = candidatesArray; 
-                
-                // 2. content objesini al:
-                JsonElement contentObj = firstCandidate.GetProperty("content");
-                
-                // 3. parts dizisini al ve  ile İLK elemanına gir:
-                JsonElement partsArray = contentObj.GetProperty("parts");
-                JsonElement firstPart = partsArray; 
-                
-                // 4. Son olarak içindeki "text" değerini string olarak çek:
-                string textResult = firstPart.GetProperty("text").GetString();
+                // İŞTE KESİN ÇÖZÜM BURADA: Köşeli parantez kullanmadan First() metodu ile Array'in içindeki Obje'ye giriyoruz!
+                var textResult = doc.RootElement
+                    .GetProperty("candidates").EnumerateArray().First() 
+                    .GetProperty("content")
+                    .GetProperty("parts").EnumerateArray().First()      
+                    .GetProperty("text")
+                    .GetString();
 
                 return textResult ?? "// Analiz sonucu alınamadı.";
             }
